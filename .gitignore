@@ -1,0 +1,5 @@
+env_churn/
+*.db
+*.csv
+__pycache__/
+.Ds_Store
