@@ -2,4 +2,5 @@ env_churn/
 *.db
 *.csv
 __pycache__/
+scripts/data/*
 .Ds_Store
