@@ -1,0 +1,59 @@
+# 1. data configuration
+data:
+  path: "data/clean_data.csv" # Chemin vers votre fichier
+  sep: ","                       # Séparateur (souvent ',' ou ';')
+  encoding: "utf-8"
+
+# 2. global settings of pipeline
+global:
+  target: "Churn"
+  test_size: 0.2
+  random_state: 42
+
+# 3. Preprocessing and Feature Engineering
+preprocessing:
+  target_column: "Churn"
+  drop_na: true
+  # Mapping pour transformer le texte en binaire (0/1)
+  binary_mapping:
+    "Yes": 1
+    "No": 0
+    "Male": 1
+    "Female": 0
+  # Création de colonnes calculées
+  features_to_create:
+    - name: "Service_Count"
+      cols: 
+        - "OnlineSecurity"
+        - "OnlineBackup"
+        - "DeviceProtection"
+        - "TechSupport"
+        - "StreamingTV"
+        - "StreamingMovies"
+
+# 4. Équilibrage des classes (SMOTE)
+smote:
+  enabled: false
+  random_state: 42
+
+# 5. Définition des modèles et hyperparamètres
+models:
+  rf_standard:
+    type: "RandomForestClassifier"
+    threshold: 0.5
+    params:
+      n_estimators: 100
+      max_depth: null
+      random_state: 42
+      n_jobs: -1
+
+  xgb_optimized:
+    type: "XGBClassifier"
+    threshold: 0.7        # Seuil personnalisé demandé pour XGBoost
+    params:
+      n_estimators: 100
+      learning_rate: 0.1
+      max_depth: 5
+      random_state: 42
+      eval_metric: "logloss"
+      tree_method: "auto"
