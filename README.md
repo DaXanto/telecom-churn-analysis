@@ -10,6 +10,7 @@ This repository contains a clean, production-ready Machine Learning pipeline des
 3. [Configuration Guide (YAML)](#-configuration-guide-yaml)
 4. [Pipeline Logic](#-pipeline-logic)
 5. [Evaluation Metrics](#-evaluation-metrics)
+6. [How to run](#-how-to-run)
 
 ---
 
