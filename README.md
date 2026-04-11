@@ -128,3 +128,19 @@ For tree-based models (like Random Forest), the script automatically generates a
 * **Business Value**: This helps stakeholders understand *why* customers are leaving, allowing for targeted business strategy improvements.
 
 ---
+
+## 6. How to Run
+
+Follow these steps in order to ensure the data is ready and the models are trained correctly.
+
+### Step 1: Preliminary Data Processing
+Before running the main pipeline, you must execute the data cleaning notebook. This script handles initial raw data formatting and exports the cleaned CSV used by the engine.
+
+* Open and run all cells in: `data_processing.ipynb`
+* This will generate the processed file in the `data/` folder.
+
+### Step 2: Main Pipeline Execution
+Once the cleaned data is ready, run the following command in your terminal:
+
+```bash
+python main.py
