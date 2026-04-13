@@ -147,7 +147,7 @@ Once the cleaned data is ready, run the following command in your terminal:
 python main.py
 ```
 
-### Step 2: Main Pipeline Execution
+### Step 3: Main Pipeline Execution
 
 ```bash
 python inference.py
