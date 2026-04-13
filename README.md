@@ -140,8 +140,15 @@ Before running the main pipeline, you must execute the data cleaning notebook. T
 * Open and run all cells in: `data_processing.ipynb`
 * This will generate the processed file in the `data/` folder.
 
-### Step 2: Main Pipeline Execution
+### Step 2: train Pipeline Execution
 Once the cleaned data is ready, run the following command in your terminal:
 
 ```bash
 python main.py
+```
+
+### Step 2: Main Pipeline Execution
+
+```bash
+python inference.py
+```
