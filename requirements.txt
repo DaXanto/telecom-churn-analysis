@@ -1,10 +1,16 @@
-os
-yaml
+# Data Manipulation
 pandas
+numpy
+
+# Data Visualization
 matplotlib
 seaborn
-sklearn
+
+# Machine Learning & Modeling
+scikit-learn
 xgboost
-imblearn
-numpy
-sqlite3
+imbalanced-learn
+
+# Storage & Config
+joblib
+pyyaml
