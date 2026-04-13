@@ -1,0 +1,67 @@
+# --- INFERENCE CONFIGURATION ---
+
+# Database & Output
+database:
+  db_path: "./data/data.db"
+  table_name: "data"
+
+# Preprocessing Logic (Must match Training logic)
+preprocessing:
+  target_column: "Churn"
+  
+  # Ensure all values potentially found in data are mapped
+  binary_mapping:
+    "Yes": 1
+    "No": 0
+    "Male": 1
+    "Female": 0
+
+  # Columns to retain (The model was trained on these)
+  features_to_use:
+    - "TotalCharges"
+    - "tenure"
+    - "MonthlyCharges"
+    - "Partner"
+    - "Dependents"
+    - "Contract"
+    - "PaymentMethod"
+    - "PaperlessBilling"
+    - "InternetService"
+    - "OnlineSecurity"
+    - "OnlineBackup"
+    - "DeviceProtection"
+    - "TechSupport"
+    - "StreamingTV"
+    - "StreamingMovies"
+    - "SeniorCitizen"
+
+  # Explicit binary columns to avoid logic errors with single-row data
+  binary_columns:
+    - "Partner"
+    - "Dependents"
+    - "PaperlessBilling"
+    - "gender"
+
+  # Dynamic Feature Creation
+  features_to_create:
+    - name: "Service_Count"
+      cols: 
+        - "OnlineSecurity"
+        - "OnlineBackup"
+        - "DeviceProtection"
+        - "TechSupport"
+        - "StreamingTV"
+        - "StreamingMovies"
+
+# Model specific settings for inference
+models:
+  xgb_optimized:
+    enabled: true
+    path: "models/xgb_optimized.joblib"
+    threshold: 0.7  # The minimum probability to be flagged as "High Risk"
+    output_csv: "xgb_optimized_high_risk.csv"
+  fr_standard:
+    enabled: true
+    path: "models/fr_standard.joblib"
+    threshold: 0.7
+    output_csv: "fr_standard_high_risk.csv"

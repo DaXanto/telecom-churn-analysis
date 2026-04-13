@@ -1,8 +1,7 @@
 # 1. data configuration
-data:
-  path: "data/clean_data.csv" # Chemin vers votre fichier
-  sep: ","                       # Séparateur (souvent ',' ou ';')
-  encoding: "utf-8"
+database:
+  db_path: "./data/data.db"
+  table_name: "data"
 
 # 2. global settings of pipeline
 global:
@@ -30,6 +29,25 @@ preprocessing:
         - "TechSupport"
         - "StreamingTV"
         - "StreamingMovies"
+  features_to_use:
+      - "TotalCharges"
+      - "tenure"
+      - "MonthlyCharges"
+      - "Partner"
+      - "Dependents"
+      - "Contract"
+      - "PaymentMethod"
+      - "PaperlessBilling"
+      - "InternetService"
+      - "OnlineSecurity"
+      - "OnlineBackup"
+      - "DeviceProtection"
+      - "TechSupport"
+      - "StreamingTV"
+      - "StreamingMovies"
+      - "SeniorCitizen"
+      - "Churn"
+
 
 # 4. Équilibrage des classes (SMOTE)
 smote:

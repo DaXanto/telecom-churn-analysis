@@ -4,3 +4,4 @@ env_churn/
 __pycache__/
 scripts/data/*
 .Ds_Store
+*.joblib

@@ -1,5 +1,5 @@
-import os
-import yaml
+import sqlite3
+
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -9,66 +9,8 @@ from sklearn.ensemble import RandomForestClassifier
 from xgboost import XGBClassifier
 from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
 from imblearn.over_sampling import SMOTE
-
-# --- CONFIGURATION AND LOADING ---
-
-def load_config(path="./config/config.yaml"):
-    """Load the YAML configuration file."""
-    if not os.path.exists(path):
-        raise FileNotFoundError(f"Config file '{path}' not found.")
-    with open(path, 'r') as f:
-        return yaml.safe_load(f)
-
-def load_data(config):
-    """Load the CSV dataset based on the config parameters."""
-    cfg = config['data']
-    print(f"Loading data from: {cfg['path']}")
-    return pd.read_csv(cfg['path'], sep=cfg['sep'], encoding=cfg['encoding'])
-
-# --- PREPROCESSING ---
-
-def preprocess_data(df, config):
-    """Clean, Feature Engineering, and Encoding."""
-    cfg_pre = config['preprocessing']
-    target = cfg_pre['target_column']
-    mapping = cfg_pre['binary_mapping']
-    
-    df_processed = df.copy()
-
-    # 1. Feature Engineering (Service Count)
-    for feat in cfg_pre.get('features_to_create', []):
-        df_processed[feat['name']] = df_processed[feat['cols']].apply(
-            lambda x: (x == 'Yes').sum(), axis=1
-        )
-        print(f"Feature created: {feat['name']}")
-
-    # 2. Encoding: Binary (Map) vs One-Hot (Dummies)
-    cols_to_encode = []
-    for col in df_processed.select_dtypes(include=['object']).columns:
-        if col == target:
-            continue
-        
-        # If the column has only 2 unique values, apply binary mapping
-        if df_processed[col].nunique() == 2:
-            df_processed[col] = df_processed[col].map(mapping)
-        else:
-            cols_to_encode.append(col)
-
-    # 3. Apply One-Hot Encoding for multi-categorical variables
-    df_processed = pd.get_dummies(df_processed, columns=cols_to_encode, drop_first=True)
-    
-    # 4. Target Encoding
-    df_processed[target] = df_processed[target].map(mapping)
-    
-    # 5. Convert booleans (from dummies) to int64
-    bool_cols = df_processed.select_dtypes('bool').columns
-    df_processed[bool_cols] = df_processed[bool_cols].astype('int64')
-
-    # 6. Final Cleaning
-    if cfg_pre.get('drop_na', True):
-        df_processed = df_processed.dropna()
-        
-    return df_processed.reset_index(drop=True)
+import joblib
+from utils.preprocessing import load_config,load_data,preprocess_data_training
 
 # --- TRAINING AND EVALUATION ---
 
@@ -84,10 +26,17 @@ def get_model_instance(model_type, params):
 def run_pipeline():
     # 1. Initialization
     config = load_config()
-    df_raw = load_data(config)
+
+    # Load database settings from YAML
+    db_settings = config['database']
     
+    print(f"Connecting to database: {db_settings['db_path']}...")
+    conn = sqlite3.connect(db_settings['db_path'])
+
+    table_sql = pd.read_sql(f"SELECT * FROM {db_settings['table_name']}", conn)
+
     # 2. Preprocessing
-    df_final = preprocess_data(df_raw, config)
+    df_final = preprocess_data_training(table_sql, config)
     
     # 3. Train/Test Split
     target = config['global']['target']
@@ -106,6 +55,9 @@ def run_pipeline():
         sm = SMOTE(random_state=config['smote']['random_state'])
         X_train, y_train = sm.fit_resample(X_train, y_train)
 
+    # Save features
+    joblib.dump(X_train.columns.tolist(), "models/model_features.joblib")
+
     # 5. Training loop for models defined in config
     for model_id, m_cfg in config['models'].items():
         print(f"\n" + "="*40)
@@ -115,6 +67,10 @@ def run_pipeline():
         # Instance and Fit
         model = get_model_instance(m_cfg['type'], m_cfg['params'])
         model.fit(X_train, y_train)
+
+        # Save model
+        joblib.dump(model,f"models/{model_id}.joblib")
+        print(f"Modèle sauvegardé : models/{model_id}.joblib")
 
         # Prediction with custom Threshold
         threshold = m_cfg.get('threshold', 0.5)
